@@ -54,6 +54,7 @@ def rgb(r:int, g:int, b:int):
     return f'#{r:02x}{g:02x}{b:02x}'
 
 def main():
+    Database()
     
     root = ThemedTk(theme="breeze")
     

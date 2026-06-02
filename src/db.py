@@ -1,11 +1,13 @@
 import sqlite3
 import json
-import os
+from pathlib import Path
 
 class Database:
 
     def __init__(self, file="database/Tinkinan.db"):
-        self.connection = sqlite3.connect(file)
+        path = Path(file)
+        abs_path = path.resolve()
+        self.connection = sqlite3.connect(abs_path)
         self.cursor = self.connection.cursor()
         self.__make_table()
 
@@ -52,4 +54,3 @@ class Database:
     
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
-
