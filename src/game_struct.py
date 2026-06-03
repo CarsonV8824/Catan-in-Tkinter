@@ -232,7 +232,51 @@ class GameStruct:
         self.graph.add_edge("House53", "Piece19")
         self.graph.add_edge("House54", "Piece19")
 
-        # Port on House30 and House1
+        # Normal Port 1 on House30 and House1 to PortNorm1
+
+        self.graph.add_node("PortNorm1")
+        self.graph.add_edges_from([("House30", "PortNorm1"), ("House1", "PortNorm1")])
+
+        # Yellow Port 1 on House3 and House4
+
+        self.graph.add_node("PortYellow1")
+        self.graph.add_edges_from([("House3", "PortYellow1"), ("House4", "PortYellow1")])
+
+        # Gray Port 1 on House7 and House8
+
+        self.graph.add_node("PortGray1")
+        self.graph.add_edges_from([("House7", "PortGray1"), ("House8", "PortGray1")])
+
+        # Normal Port 2 on House10 and House11
+
+        self.graph.add_node("PortNorm2")
+        self.graph.add_edges_from([("House10", "PortNorm2"), ("House11", "PortNorm2")])
+
+        # Sheep Port 1 on House13 and House14
+
+        self.graph.add_node("PortLime1")
+        self.graph.add_edges_from([("House13", "PortLime1"), ("House14", "PortLime1")])
+
+        # Normal Port 3 on House 17 and House 18
+
+        self.graph.add_node("PortNorm3")
+        self.graph.add_edges_from([("House17", "PortNorm3"), ("House18", "PortNorm3")])
+
+        # Normal Port 4 on House 20 and House 21
+
+        self.graph.add_node("PortNorm4")
+        self.graph.add_edges_from([("House20", "PortNorm4"), ("House21", "PortNorm4")])
+
+        # Brick Port 1 on House 23 and House 24
+
+        self.graph.add_node("PortBrown1")
+        self.graph.add_edges_from([("House23", "PortBrown1"), ("House24", "PortBrown1")])
+
+        # Wood Port 1 on House 27 and House 28
+
+        self.graph.add_node("PortGreen1")
+        self.graph.add_edges_from([("House27", "PortGreen1"), ("House28", "PortGreen1")])
+
         
     def add_image_color_to_piece(self, piece_number, resource_type):
         node_name = f"Piece{piece_number}"
@@ -507,6 +551,18 @@ class GameStruct:
                     longest_player = player
         
         return longest_player, max_length
+    
+    def get_all_available_ports_from_player(self, player_name: str) -> list:
+        """Returns all available ports near houses owned by the player."""
+        ports = set()
+
+        for node, data in self.graph.nodes(data=True):
+            if data.get("Player") == player_name:
+                for neighbor in self.graph.neighbors(node):
+                    if str(neighbor).startswith("Port"):
+                        ports.add(neighbor)
+
+        return list(ports)
 
     def __str__(self):
         return f"nodes: {len(list(self.graph.nodes))}. number of edges {len(list(self.graph.edges))}"

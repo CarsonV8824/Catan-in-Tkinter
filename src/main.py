@@ -72,8 +72,6 @@ def main():
         # Load saved game
         saved_data = load_data()
         
-        
-            
         game_struct = GameStruct()
         first_entry = saved_data[0]
         node_list = first_entry[1]
@@ -85,8 +83,6 @@ def main():
         game_struct.graph.add_edges_from(edge_list)
 
         board = Canvas(root, game_struct)
-
-        
 
         game_loop = GameLoop(root, game_struct, board)
 
@@ -105,14 +101,14 @@ def main():
 
         board.get_player(players[game_loop.player_index])
 
-        dice_tab = tab.dice_tab(tabs, game_loop, players)
+        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct)
 
         player_stats_tab = tab.player_stats_tab(tabs, players)
 
-        tab.update_player_stats(players) 
+        tab.update_player_stats(players, game_loop, game_struct) 
         trade_tab = tab.trade_tab(tabs, players, game_loop, game_struct)
 
-        buy_tab = tab.buy_tab(tabs, players, game_loop)
+        buy_tab = tab.buy_tab(tabs, players, game_loop, game_struct)
             
         rules_tab = tab.rules_tab(tabs)
 
@@ -153,15 +149,15 @@ def main():
 
         board.get_player(players[first_player_index]) #set first player for placement
 
-        dice_tab = tab.dice_tab(tabs, game_loop, players)
+        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct)
 
         player_stats_tab = tab.player_stats_tab(tabs, players)
 
-        tab.update_player_stats(players) 
+        tab.update_player_stats(players, game_loop, game_struct) 
 
         trade_tab = tab.trade_tab(tabs, players, game_loop, game_struct)
 
-        buy_tab = tab.buy_tab(tabs, players, game_loop)
+        buy_tab = tab.buy_tab(tabs, players, game_loop, game_struct)
         
         rules_tab = tab.rules_tab(tabs)
 
