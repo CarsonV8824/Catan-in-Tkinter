@@ -4,6 +4,10 @@ from ttkthemes import ThemedTk
 import tkinter as tk
 import math
 import random
+try:
+    from player import Player
+except (ImportError, ModuleNotFoundError):
+    pass
 
 class Canvas:
 
@@ -41,7 +45,7 @@ class Canvas:
 
         self.coords = ()
 
-        self.current_player = None #to track current player for placement
+        self.current_player:None|Player = None #to track current player for placement
 
         self.settlement_on = False
 
