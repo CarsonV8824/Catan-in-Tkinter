@@ -231,6 +231,8 @@ class GameStruct:
         self.graph.add_edge("House52", "Piece19")
         self.graph.add_edge("House53", "Piece19")
         self.graph.add_edge("House54", "Piece19")
+
+        # Port on House30 and House1
         
     def add_image_color_to_piece(self, piece_number, resource_type):
         node_name = f"Piece{piece_number}"

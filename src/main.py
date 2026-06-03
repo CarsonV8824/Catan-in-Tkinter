@@ -13,8 +13,9 @@ from first_screen import FirstScreen
 import networkx as nx
 import random
 import os
+from typing import Any
 
-def load_data() -> list|None:
+def load_data() -> list[Any]|None:
     db_path = os.path.join("database", "Tinkinan.db")
     if not os.path.exists(db_path):
         return None
@@ -94,7 +95,7 @@ def main():
             player = Player(pdata["name"], pdata["color"])
             player.resources = pdata["resources"]
             players.append(player)
-            tab = Tabs(root)
+        tab = Tabs(root)
 
         board.draw_board_with_loaded_data(players)
 
