@@ -29,12 +29,15 @@ class Tabs:
         self.first_player_items:ttk.Treeview = None
         self.second_player_items:ttk.Treeview = None
 
+        self.player_ports:list| None = None
+        self.select_ports:ttk.Combobox | None = None
+
     def tabs(self):
         tab = ttk.Notebook(self.root)
         tab.pack(expand=True, fill="both")
         return tab
     
-    def dice_tab(self, notebook:ttk.Notebook, game_loop: GameLoop, players:list):
+    def dice_tab(self, notebook:ttk.Notebook, game_loop: GameLoop, players:list,game_struct:GameStruct):
 
         dice_tab = ttk.Frame(notebook)
         notebook.add(dice_tab, text="dice")
@@ -58,7 +61,7 @@ class Tabs:
 
         #=====================================================================================
 
-        self.dice_button = ttk.Button(frame, text="Roll Dice", command=lambda: game_loop.game_turn(self.dice_button, player_turn_info, players=players, first_dice_label=first_dice, second_dice_label=second_dice, total_of_dice_label=total_of_dice, update_player_stats_tab=lambda: self.update_player_stats(players)))
+        self.dice_button = ttk.Button(frame, text="Roll Dice", command=lambda: game_loop.game_turn(self.dice_button, player_turn_info, players=players, first_dice_label=first_dice, second_dice_label=second_dice, total_of_dice_label=total_of_dice, update_player_stats_tab=lambda: self.update_player_stats(players, game_loop, game_struct)))
 
         self.dice_button.pack(pady=20)
 
@@ -121,7 +124,7 @@ class Tabs:
 
         return player_stats_tab
     
-    def update_player_stats(self, players: list):
+    def update_player_stats(self, players: list, game_loop:GameLoop, game_struct:GameStruct):
         for player in players:
             player:Player = player
             vars_map = self.player_stat_vars.get(player.name)
@@ -132,6 +135,22 @@ class Tabs:
                 res_var = vars_map["resources"].get(resource)
                 if res_var:
                     res_var.set(f"  {resource}: {amount}")
+
+        # updates the select based on player index
+
+        self.player_ports = None
+        
+        self.player_ports = game_struct.get_all_available_ports_from_player(players[game_loop.player_index].name)
+        print(self.player_ports)
+
+        try:
+            self.select_ports.set("")
+
+            self.select_ports['values'] = tuple(self.player_ports)
+        except AttributeError as e:
+            print(f"AttributeError on line 147: {e}")
+        
+
 
     def trade_tab(self, notebook:ttk.Notebook, players:list, game_loop:GameLoop, game_struct:GameStruct=None):
 
@@ -294,6 +313,30 @@ class Tabs:
 
         trade_in_button = ttk.Button(trade_in_frame, text="Trade In Resources", command=lambda: self.trade_in_resources(players, game_loop, game_struct))
         trade_in_button.pack(pady=5)
+
+        # Ports Part
+
+        ports_frame = ttk.Frame(frame,padding=10,border=2, relief="groove")
+        ports_frame.pack(padx=10, pady=10)
+
+        self.player_ports = game_struct.get_all_available_ports_from_player(players[game_loop.player_index].name)
+        print(self.player_ports)
+
+        self.select_ports = ttk.Combobox(ports_frame, values=self.player_ports, state="readonly")
+        self.select_ports.pack(pady=5)
+
+        self.trade_in_port_btn = ttk.Button(ports_frame, command=lambda:confirm_trade(self.select_ports.get(), players[game_loop.player_index], players=players, game_loop=game_loop, game_struct=game_struct), text="Trade to Port")
+        self.trade_in_port_btn.pack(pady=5)
+
+        def confirm_trade(port_type:str, player:Player, players:list[Player], game_loop:GameLoop, game_struct:GameStruct):
+            match port_type[:-1]:
+                case "PortNorm":pass
+                case "PortGreen":pass
+                case "PortYellow":pass
+                case "PortGreen":pass
+                case "PortBrown":pass
+                case "PortLime":pass
+            self.update_player_stats(players, game_loop, game_struct)
 
         return trade_tab
 
