@@ -325,22 +325,129 @@ class Tabs:
         self.select_ports = ttk.Combobox(ports_frame, values=self.player_ports, state="readonly")
         self.select_ports.pack(pady=5)
 
-        self.trade_in_port_btn = ttk.Button(ports_frame, command=lambda:confirm_trade(self.select_ports.get(), players[game_loop.player_index], players=players, game_loop=game_loop, game_struct=game_struct), text="Trade to Port")
+        self.trade_in_port_btn = ttk.Button(ports_frame, command=lambda:confirm_trade(players[game_loop.player_index], game_loop=game_loop, game_struct=game_struct), text="Trade to Port")
         self.trade_in_port_btn.pack(pady=5)
 
-        def confirm_trade(port_type:str, player:Player, players:list[Player], game_loop:GameLoop, game_struct:GameStruct):
-            match port_type[:-1]:
-                case "PortNorm":pass
-                case "PortGreen":pass
-                case "PortYellow":pass
-                case "PortGreen":pass
-                case "PortBrown":pass
-                case "PortLime":pass
-            self.update_player_stats(players, game_loop, game_struct)
+        def trade_in(player:Player, resorce_box:ttk.Combobox, type_of_port:str, resorce_to_trade_in_for_box:ttk.Combobox):
+            resorce = resorce_box.get()
+            resorce_to_trade_in_for = resorce_to_trade_in_for_box.get()
+
+            if not resorce or not resorce_to_trade_in_for:
+                print("Missing selection")
+                return
+
+            type_of_port = type_of_port.lower()
+
+            # Normal 3:1 port
+            if type_of_port == "norm":
+                if player.get_resource_count(resorce) >= 3:
+                    player.remove_resource(resorce, 3)
+                    player.add_resource(resorce_to_trade_in_for, 1)
+                    return
+                print("Not enough resources")
+                return
+
+            # 2:1 ports
+            if player.get_resource_count(type_of_port) >= 2:
+                player.remove_resource(type_of_port, 2)
+                player.add_resource(resorce_to_trade_in_for, 1)
+            else:
+                print("Not enough resources")
+
+        def confirm_trade(player:Player, game_loop:GameLoop, game_struct:GameStruct):
+
+            port_type = self.select_ports.get()
+            not_last_port_type = port_type[:-1]
+
+            port_toplevel = tk.Toplevel(self.root)
+
+            ttk.Label(port_toplevel, text="Resource you want").pack()
+            wanting_combo = ttk.Combobox(
+                port_toplevel,
+                values=["lime", "green", "yellow", "gray", "brown"],
+                state="readonly"
+            )
+            wanting_combo.pack()
+
+            def make_trade(port_name, combo_widget):
+                trade_in(
+                    player=player,
+                    resorce_box=combo_widget,
+                    type_of_port=port_name,
+                    resorce_to_trade_in_for_box=wanting_combo
+                )
+                port_toplevel.destroy()
+                self.update_player_stats(players, game_loop, game_struct)
+
+            match not_last_port_type:
+
+                case "PortNorm":
+                    ttk.Label(port_toplevel, text="Trade 3 of the same card for any card!").pack()
+
+                    combo = ttk.Combobox(
+                        port_toplevel,
+                        values=["lime", "green", "yellow", "gray", "brown"],
+                        state="readonly"
+                    )
+                    combo.pack()
+
+                    ttk.Button(
+                        port_toplevel,
+                        text="Confirm Trade",
+                        command=lambda: make_trade("norm", combo)
+                    ).pack()
+
+                case "PortGreen":
+                    ttk.Label(port_toplevel, text="Trade 2 Green cards for any card!").pack()
+
+                    combo = ttk.Combobox(port_toplevel, values=["green"], state="readonly")
+                    combo.pack()
+
+                    ttk.Button(
+                        port_toplevel,
+                        text="Confirm Trade",
+                        command=lambda: make_trade("green", combo)
+                    ).pack()
+
+                case "PortYellow":
+                    ttk.Label(port_toplevel, text="Trade 2 Yellow cards for any card!").pack()
+
+                    combo = ttk.Combobox(port_toplevel, values=["yellow"], state="readonly")
+                    combo.pack()
+
+                    ttk.Button(
+                        port_toplevel,
+                        text="Confirm Trade",
+                        command=lambda: make_trade("yellow", combo)
+                    ).pack()
+
+                case "PortBrown":
+                    ttk.Label(port_toplevel, text="Trade 2 Brown cards for any card!").pack()
+
+                    combo = ttk.Combobox(port_toplevel, values=["brown"], state="readonly")
+                    combo.pack()
+
+                    ttk.Button(
+                        port_toplevel,
+                        text="Confirm Trade",
+                        command=lambda: make_trade("brown", combo)
+                    ).pack()
+
+                case "PortLime":
+                    ttk.Label(port_toplevel, text="Trade 2 Lime cards for any card!").pack()
+
+                    combo = ttk.Combobox(port_toplevel, values=["lime"], state="readonly")
+                    combo.pack()
+
+                    ttk.Button(
+                        port_toplevel,
+                        text="Confirm Trade",
+                        command=lambda: make_trade("lime", combo)
+                    ).pack()
 
         return trade_tab
 
-    def trade_in_resources(self, players:list[Player], game_loop:GameLoop, game_struct:GameStruct=None):
+    def trade_in_resources(self, players:list[Player], game_loop:GameLoop, game_struct:GameStruct|None=None):
             self.trade_in_resources_top = tk.Toplevel(self.root)
             self.trade_in_resources_top.title("Trade In Resources")
             self.trade_in_resources_top.geometry("300x300")
@@ -377,11 +484,11 @@ class Tabs:
                 players[game_loop.player_index].add_resource(chosen_resource_bank, 1)
 
                 self.trade_in_resources_top.destroy()
-                self.update_player_stats(players)
+                self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
             confirm_trade_in_button = ttk.Button(self.trade_in_resources_top, text="Confirm Trade In", command=confirm_trade_in)
             confirm_trade_in_button.pack(pady=10)
     
-    def buy_tab(self, notebook:ttk.Notebook, players:list, game_loop:GameLoop):
+    def buy_tab(self, notebook:ttk.Notebook, players:list, game_loop:GameLoop, game_struct:GameStruct):
         
         buy_tab = ttk.Frame(notebook)
         notebook.add(buy_tab, text="buy")
@@ -417,7 +524,7 @@ class Tabs:
         draw_card_label = ttk.Label(frame, text="Draw Development Card")
         draw_card_label.pack(padx=10, pady=10)
 
-        draw_card_button = ttk.Button(frame, text="Draw Card", command=lambda: self.choose_development_card(players, game_loop.player_index, lambda players, button: game_loop.place_robber(players, button), lambda players, button: game_loop.place_two_roads(players, button)))
+        draw_card_button = ttk.Button(frame, text="Draw Card", command=lambda: self.choose_development_card(players, game_loop.player_index, lambda players, button: game_loop.place_robber(players, button), lambda players, button: game_loop.place_two_roads(players, button), game_loop=game_loop, game_struct=game_struct))
         draw_card_button.pack(padx=10, pady=10)
 
         self.card_result_label = ttk.Label(frame, text="Card Result: ")
@@ -425,7 +532,7 @@ class Tabs:
 
         return buy_tab
     
-    def choose_development_card(self, players, current_player_index:int, robber_func:Callable=None, road_func:Callable=None):
+    def choose_development_card(self, players, current_player_index:int, robber_func:Callable|None=None, road_func:Callable|None=None, game_loop:GameLoop|None=None, game_struct:GameStruct|None=None):
         if players[current_player_index].resources["lime"] < 1 and players[current_player_index].resources["gray"] < 1 and players[current_player_index].resources["yellow"] < 1:
             self.card_result_label.config(text="Not enough resources to buy a development card.")
             return
@@ -457,14 +564,14 @@ class Tabs:
                 if robber_func:
                     robber_func(players, self.dice_button)
                     players[current_player_index].add_resource("knight_cards", 1)
-                    self.update_player_stats(players)
+                    self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
             case "Victory Point":
                 players[current_player_index].add_victory_point(1)
-                self.update_player_stats(players)
+                self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
             case "Road Building":
                 if road_func:
                     road_func(players, self.dice_button)
-                    self.update_player_stats(players)
+                    self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
             case "Year of Plenty":
                 year_of_plenty_top = tk.Toplevel(self.root)
                 year_of_plenty_top.title("Year of Plenty")
@@ -481,7 +588,7 @@ class Tabs:
                     if count_holder[0] >= 2:
                         count_holder[0] = 0
                         year_of_plenty_top.destroy()
-                        self.update_player_stats(players)
+                        self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
                 
                 for r in resources:
                     btn = ttk.Button(year_of_plenty_top, text=f"Add {r}", 
@@ -502,7 +609,7 @@ class Tabs:
                                 player.remove_resource(resource, amount)
                                 players[current_player_index].add_resource(resource, amount)
                     monolopy_top.destroy()
-                    self.update_player_stats(players)
+                    self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
                 resources = ["lime", "green", "brown", "yellow", "gray"]
                 for r in resources:
                     btn = ttk.Button(monolopy_top, text=f"Choose {r}", 
@@ -510,10 +617,10 @@ class Tabs:
                     btn.pack(pady=5)
                 
                 
-                self.update_player_stats(players)
+                self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
 
         print(f"Chosen Card: {chosen_card}")
-        self.update_player_stats(players)
+        self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
     
     def rules_tab(self, notebook:ttk.Notebook):
         

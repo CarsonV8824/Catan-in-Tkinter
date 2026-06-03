@@ -108,7 +108,7 @@ def main():
         tab.update_player_stats(players, game_loop, game_struct) 
         trade_tab = tab.trade_tab(tabs, players, game_loop, game_struct)
 
-        buy_tab = tab.buy_tab(tabs, players, game_loop)
+        buy_tab = tab.buy_tab(tabs, players, game_loop, game_struct)
             
         rules_tab = tab.rules_tab(tabs)
 
@@ -157,7 +157,7 @@ def main():
 
         trade_tab = tab.trade_tab(tabs, players, game_loop, game_struct)
 
-        buy_tab = tab.buy_tab(tabs, players, game_loop)
+        buy_tab = tab.buy_tab(tabs, players, game_loop, game_struct)
         
         rules_tab = tab.rules_tab(tabs)
 
