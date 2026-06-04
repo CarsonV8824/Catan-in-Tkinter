@@ -3,6 +3,8 @@ import networkx as nx
 import random
 
 import player
+import json
+from pathlib import Path
 
 class GameStruct:
 
@@ -16,266 +18,40 @@ class GameStruct:
         #self.dice_numbers = list(self.dice_numbers)
 
         #---adds all of the places where a person can place a house or road. Use reference photo (Game_Board.png)---
-        
-        for i in range(1, 55):
+        path = Path("config/game_struct.json")
+        abs_path = path.absolute()
+        with open(abs_path, "r") as f:
+            data = json.load(f)
+
+        for i in range(1, data["houses"] + 1):
             self.graph.add_node(f"House{i}", Player=None, Type=None)
-            if 1 < i < 30:
-                self.graph.add_edge(f"House{i-1}", f"House{i}", Player=None)
-            elif i == 30:
-                self.graph.add_edge(f"House{i-1}", f"House{i}", Player=None)
-                self.graph.add_edge("House1", f"House{i}", Player=None)
-            elif 31 < i < 48:
-                self.graph.add_edge(f"House{i-1}", f"House{i}", Player=None)
-            elif i == 48:
-                self.graph.add_edge(f"House{i}", "House31", Player=None)
-                self.graph.add_edge(f"House{i}", f"House{i-1}", Player=None)
-            elif 49 < i < 54:
-                self.graph.add_edge(f"House{i-1}", f"House{i}", Player=None)
-            if i == 54:
-                self.graph.add_edge(f"House{i-1}", f"House{i}", Player=None)
-                self.graph.add_edge(f"House{i}", "House49", Player=None)
-        
-        #---connect the rest of the houses---
 
-        self.graph.add_edge("House2", "House31", Player=None)
-        self.graph.add_edge("House4", "House33", Player=None)
-        self.graph.add_edge("House7", "House34", Player=None)
-        self.graph.add_edge("House9", "House36", Player=None)
-        self.graph.add_edge("House12", "House37", Player=None)
-        self.graph.add_edge("House14", "House39", Player=None)
-        self.graph.add_edge("House17", "House40", Player=None)
-        self.graph.add_edge("House19", "House42", Player=None)
-        self.graph.add_edge("House22", "House43", Player=None)
-        self.graph.add_edge("House24", "House45", Player=None)
-        self.graph.add_edge("House27", "House46", Player=None)
-        self.graph.add_edge("House29", "House48", Player=None)
-
-        self.graph.add_edge("House49", "House32", Player=None)
-        self.graph.add_edge("House50", "House35", Player=None)
-        self.graph.add_edge("House51", "House38", Player=None)
-        self.graph.add_edge("House52", "House41", Player=None)
-        self.graph.add_edge("House53", "House44", Player=None)
-        self.graph.add_edge("House54", "House47", Player=None)
-
-        #---tile pieces themselves---
-
-        for i in range(1, 20):
-
+        # --- Pieces ---
+        for i in range(1, data["pieces"] + 1):
             self.graph.add_node(f"Piece{i}", Resource=None, dice_number=None, Robber=False)
-        
-        #---piece 1---
 
-        self.graph.add_edge("House1", "Piece1")
-        self.graph.add_edge("House2", "Piece1")
-        self.graph.add_edge("House31", "Piece1")
-        self.graph.add_edge("House48", "Piece1")
-        self.graph.add_edge("House29", "Piece1")
-        self.graph.add_edge("House30", "Piece1")
+        # --- Ports ---
+        for port in data["ports"]:
+            self.graph.add_node(port)
 
-        #---piece 2---
+        # --- Linear ranges ---
+        for start, end in data["edges"]["linear_ranges"]:
+            for i in range(start, end):
+                self.graph.add_edge(f"House{i}", f"House{i+1}", Player=None)
 
-        self.graph.add_edge("House2", "Piece2")
-        self.graph.add_edge("House3", "Piece2")
-        self.graph.add_edge("House4", "Piece2")
-        self.graph.add_edge("House33", "Piece2")
-        self.graph.add_edge("House32", "Piece2")
-        self.graph.add_edge("House31", "Piece2")
-        
-        #---piece 3---
+        # --- Special edges ---
+        for u, v in data["edges"]["special_edges"]:
+            self.graph.add_edge(f"House{u}", f"House{v}", Player=None)
 
-        self.graph.add_edge("House4", "Piece3")
-        self.graph.add_edge("House5", "Piece3")
-        self.graph.add_edge("House6", "Piece3")
-        self.graph.add_edge("House7", "Piece3")
-        self.graph.add_edge("House33", "Piece3")
-        self.graph.add_edge("House34", "Piece3")
+        # --- Piece edges ---
+        for piece, houses in data["piece_edges"].items():
+            for h in houses:
+                self.graph.add_edge(f"House{h}", piece, Player=None)
 
-        #---piece 4---
-
-        self.graph.add_edge("House7", "Piece4")
-        self.graph.add_edge("House8", "Piece4")
-        self.graph.add_edge("House9", "Piece4")
-        self.graph.add_edge("House34", "Piece4")
-        self.graph.add_edge("House35", "Piece4")
-        self.graph.add_edge("House36", "Piece4")
-        #---piece 5---
-
-        self.graph.add_edge("House9", "Piece5")
-        self.graph.add_edge("House10", "Piece5")
-        self.graph.add_edge("House11", "Piece5")
-        self.graph.add_edge("House12", "Piece5")
-        self.graph.add_edge("House36", "Piece5")
-        self.graph.add_edge("House37", "Piece5")
-
-        #--piece 6---
-
-        self.graph.add_edge("House12", "Piece6")
-        self.graph.add_edge("House13", "Piece6")
-        self.graph.add_edge("House14", "Piece6")
-        self.graph.add_edge("House37", "Piece6")
-        self.graph.add_edge("House38", "Piece6")
-        self.graph.add_edge("House39", "Piece6")
-
-        #---piece 7---
-
-        self.graph.add_edge("House14", "Piece7")
-        self.graph.add_edge("House15", "Piece7")
-        self.graph.add_edge("House16", "Piece7")
-        self.graph.add_edge("House17", "Piece7")
-        self.graph.add_edge("House39", "Piece7")
-        self.graph.add_edge("House40", "Piece7")
-
-        #---piece 8---
-
-        self.graph.add_edge("House17", "Piece8")
-        self.graph.add_edge("House18", "Piece8")
-        self.graph.add_edge("House19", "Piece8")
-        self.graph.add_edge("House40", "Piece8")
-        self.graph.add_edge("House41", "Piece8")
-        self.graph.add_edge("House42", "Piece8")
-        
-        #---piece 9---
-
-        self.graph.add_edge("House19", "Piece9")
-        self.graph.add_edge("House20", "Piece9")
-        self.graph.add_edge("House21", "Piece9")
-        self.graph.add_edge("House22", "Piece9")
-        self.graph.add_edge("House42", "Piece9")
-        self.graph.add_edge("House43", "Piece9")
-
-        #--piece 10---
-
-        self.graph.add_edge("House22", "Piece10")
-        self.graph.add_edge("House23", "Piece10")
-        self.graph.add_edge("House24", "Piece10")
-        self.graph.add_edge("House43", "Piece10")
-        self.graph.add_edge("House44", "Piece10")
-        self.graph.add_edge("House45", "Piece10")
-
-        #--piece 11---
-
-        self.graph.add_edge("House24", "Piece11")
-        self.graph.add_edge("House25", "Piece11")
-        self.graph.add_edge("House26", "Piece11")
-        self.graph.add_edge("House27", "Piece11")
-        self.graph.add_edge("House45", "Piece11")
-        self.graph.add_edge("House46", "Piece11")
-        #---piece 12---
-
-        self.graph.add_edge("House27", "Piece12")
-        self.graph.add_edge("House28", "Piece12")
-        self.graph.add_edge("House29", "Piece12")
-        self.graph.add_edge("House46", "Piece12")
-        self.graph.add_edge("House47", "Piece12")
-        self.graph.add_edge("House48", "Piece12")
-        
-        #---piece 13---
-
-        self.graph.add_edge("House31", "Piece13")
-        self.graph.add_edge("House32", "Piece13")
-        self.graph.add_edge("House47", "Piece13")
-        self.graph.add_edge("House48", "Piece13")
-        self.graph.add_edge("House49", "Piece13")
-        self.graph.add_edge("House54", "Piece13")
-
-        #---piece 14---
-
-        self.graph.add_edge("House32", "Piece14")
-        self.graph.add_edge("House33", "Piece14")
-        self.graph.add_edge("House34", "Piece14")
-        self.graph.add_edge("House35", "Piece14")
-        self.graph.add_edge("House49", "Piece14")
-        self.graph.add_edge("House50", "Piece14")
-        #---piece 15---
-
-        self.graph.add_edge("House35", "Piece15")
-        self.graph.add_edge("House36", "Piece15")
-        self.graph.add_edge("House37", "Piece15")
-        self.graph.add_edge("House38", "Piece15")
-        self.graph.add_edge("House50", "Piece15")
-        self.graph.add_edge("House51", "Piece15")
-
-        #---piece 16---
-
-        self.graph.add_edge("House38", "Piece16")
-        self.graph.add_edge("House39", "Piece16")
-        self.graph.add_edge("House40", "Piece16")
-        self.graph.add_edge("House41", "Piece16")
-        self.graph.add_edge("House51", "Piece16")
-        self.graph.add_edge("House52", "Piece16")
-        
-
-        #---piece 17---
-
-        self.graph.add_edge("House41", "Piece17")
-        self.graph.add_edge("House42", "Piece17")
-        self.graph.add_edge("House43", "Piece17")
-        self.graph.add_edge("House44", "Piece17")
-        self.graph.add_edge("House52", "Piece17")
-        self.graph.add_edge("House53", "Piece17")
-
-        #---piece 18---
-
-        self.graph.add_edge("House44", "Piece18")
-        self.graph.add_edge("House45", "Piece18")
-        self.graph.add_edge("House46", "Piece18")
-        self.graph.add_edge("House47", "Piece18")
-        self.graph.add_edge("House53", "Piece18")
-        self.graph.add_edge("House54", "Piece18")
-        
-        #---piece 19---
-
-        self.graph.add_edge("House49", "Piece19")
-        self.graph.add_edge("House50", "Piece19")
-        self.graph.add_edge("House51", "Piece19")
-        self.graph.add_edge("House52", "Piece19")
-        self.graph.add_edge("House53", "Piece19")
-        self.graph.add_edge("House54", "Piece19")
-
-        # Normal Port 1 on House30 and House1 to PortNorm1
-
-        self.graph.add_node("PortNorm1")
-        self.graph.add_edges_from([("House30", "PortNorm1"), ("House1", "PortNorm1")])
-
-        # Yellow Port 1 on House3 and House4
-
-        self.graph.add_node("PortYellow1")
-        self.graph.add_edges_from([("House3", "PortYellow1"), ("House4", "PortYellow1")])
-
-        # Gray Port 1 on House7 and House8
-
-        self.graph.add_node("PortGray1")
-        self.graph.add_edges_from([("House7", "PortGray1"), ("House8", "PortGray1")])
-
-        # Normal Port 2 on House10 and House11
-
-        self.graph.add_node("PortNorm2")
-        self.graph.add_edges_from([("House10", "PortNorm2"), ("House11", "PortNorm2")])
-
-        # Sheep Port 1 on House13 and House14
-
-        self.graph.add_node("PortLime1")
-        self.graph.add_edges_from([("House13", "PortLime1"), ("House14", "PortLime1")])
-
-        # Normal Port 3 on House 17 and House 18
-
-        self.graph.add_node("PortNorm3")
-        self.graph.add_edges_from([("House17", "PortNorm3"), ("House18", "PortNorm3")])
-
-        # Normal Port 4 on House 20 and House 21
-
-        self.graph.add_node("PortNorm4")
-        self.graph.add_edges_from([("House20", "PortNorm4"), ("House21", "PortNorm4")])
-
-        # Brick Port 1 on House 23 and House 24
-
-        self.graph.add_node("PortBrown1")
-        self.graph.add_edges_from([("House23", "PortBrown1"), ("House24", "PortBrown1")])
-
-        # Wood Port 1 on House 27 and House 28
-
-        self.graph.add_node("PortGreen1")
-        self.graph.add_edges_from([("House27", "PortGreen1"), ("House28", "PortGreen1")])
+        # --- Port edges ---
+        for port, houses in data["port_edges"].items():
+            for h in houses:
+                self.graph.add_edge(f"House{h}", port, Player=None)
 
         
     def add_image_color_to_piece(self, piece_number, resource_type):
