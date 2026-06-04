@@ -5,6 +5,7 @@ from pathlib import Path
 class Database:
 
     def __init__(self, file="database/Tinkinan.db"):
+        """gets the connection and makes tables of database"""
         path = Path(file)
         abs_path = path.resolve()
         self.connection = sqlite3.connect(abs_path)
@@ -54,3 +55,8 @@ class Database:
     
     def __exit__(self, exc_type, exc_value, traceback):
         self.connection.close()
+
+    @staticmethod
+    def make_init_table() -> None:
+        db = Database()
+        db.connection.close()
