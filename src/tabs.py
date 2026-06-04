@@ -124,7 +124,7 @@ class Tabs:
 
         return player_stats_tab
     
-    def update_player_stats(self, players: list, game_loop:GameLoop, game_struct:GameStruct):
+    def update_player_stats(self, players: list[Player], game_loop:GameLoop, game_struct:GameStruct):
         for player in players:
             player:Player = player
             vars_map = self.player_stat_vars.get(player.name)
@@ -152,7 +152,7 @@ class Tabs:
         
 
 
-    def trade_tab(self, notebook:ttk.Notebook, players:list, game_loop:GameLoop, game_struct:GameStruct=None):
+    def trade_tab(self, notebook:ttk.Notebook, players:list, game_loop:GameLoop, game_struct:GameStruct|None=None):
 
         trade_tab = ttk.Frame(notebook)
         notebook.add(trade_tab, text="trade")

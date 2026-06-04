@@ -40,21 +40,6 @@ class Canvas:
             18: ((325 - 50 * math.sqrt(3), 325)),
             19: ((325, 325))
         }
-        self.__get_pieces()
-        self.__draw_board()
-
-        self.coords = ()
-
-        self.current_player:None|Player = None #to track current player for placement
-
-        self.settlement_on = False
-
-        self.road_on = False
-        
-        self.city_on = False
-
-        self.robber_placement_active = False
-
         #look at Game_Board.png to see how the corner coords are mapped to piece numbers
         self.corner_coords = {
             1: (238.39745962155615, 125.0),
@@ -112,6 +97,22 @@ class Canvas:
             53: (281.6987298107781, 350.0),
             54: (281.69872981077805, 300.0)
         }
+        self.__get_pieces()
+        self.__draw_board()
+
+        self.coords = ()
+
+        self.current_player:None|Player = None #to track current player for placement
+
+        self.settlement_on = False
+
+        self.road_on = False
+        
+        self.city_on = False
+
+        self.robber_placement_active = False
+
+        
 
     def __get_pieces(self) -> None:
         self.pieces_ref = {"sheep":"lime", "wood":"green", "brick":"brown", "wheat":"yellow", "ore":"gray", "desert":"tan"}
@@ -190,6 +191,51 @@ class Canvas:
             # Redraw existing robber
             robber_piece = self.game_struct.get_robber_piece()
             self.draw_robber_on_piece(robber_piece)
+
+        # Draw Ports
+        selected_areas = self.game_struct.get_all_available_connections_of_ports()
+        LENGTH_OF_PORT = 60
+        ANGLE_ADD_CONST = 100
+        angle_deg = 60
+
+        for house, port in selected_areas:
+            colors = ["lime", "brown", "gray", "green", "yellow", "norm"]
+            just_col = port[:-1].lower() # gets everything but last element and lowercase everything
+            choosen_color:str = ""
+            for color in colors:
+                if just_col.endswith(color):
+                    choosen_color = color
+                if choosen_color == "norm":
+                    choosen_color = "black"
+
+            top_facing_angles = [30,1,3,4]
+            right_facing_angles = [7,8,10,11,13,14]
+            bottom_facing_angles = [17,18,20,21]
+            left_facing_angles = [23,24,27,28]
+
+            house_number = int("".join([char for char in house if char.isdigit()]))
+            start_x, start_y = self.corner_coords[house_number]
+
+            if house_number in top_facing_angles:
+                angle_deg = ANGLE_ADD_CONST
+            elif house_number in right_facing_angles:
+                angle_deg = ANGLE_ADD_CONST + 75
+            elif house_number in bottom_facing_angles:
+                angle_deg = ANGLE_ADD_CONST + ANGLE_ADD_CONST + 45
+            elif house_number in left_facing_angles:
+                angle_deg = ANGLE_ADD_CONST + ANGLE_ADD_CONST + ANGLE_ADD_CONST+55
+            else:
+                raise ValueError(f"House with port not in lists. {house_number}")
+
+            angle_rad = math.radians(angle_deg)
+
+            end_x = start_x - LENGTH_OF_PORT * math.cos(angle_rad)
+            end_y = start_y - LENGTH_OF_PORT * math.sin(angle_rad)
+
+            self.canvas.create_line(start_x, start_y, end_x, end_y, width=5, fill=choosen_color)
+            angle_deg = math.degrees(angle_rad)
+
+            angle_deg *= house_number * 4
 
     def __choose_radom_color_from_piece_list(self) -> str:
         return self.pieces.pop(random.randint(0, len(self.pieces)-1))

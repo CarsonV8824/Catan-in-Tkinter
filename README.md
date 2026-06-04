@@ -17,6 +17,7 @@ A Python-based implementation of the board game Catan (Settlers of Catan) with a
 - 🏆 **Victory Points**: Track player progress toward the 10-point victory goal
 - 💾 **Game Persistence**: Save and load past game data with full game state restoration
 - 🎯 **Robust State Management**: Graph-based game state for accurate piece placement and resource tracking
+- 🏗️ **Port System**: Graph-based port system that checks if users have ports and can get discounts
 
 ## 📸 Demo
 
@@ -96,7 +97,7 @@ Tinkinan/
 - **ttkthemes**: Modern themed widgets
 - **NetworkX**: Graph-based road/route tracking
 - **SQLite**: Game persistence and history
-- **Math module**: Hexagon geometry calculations
+- **Math module**: Hexagon geometry calculations and trigonometry
 
 ## 🤝 Contributing
 

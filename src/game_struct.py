@@ -563,6 +563,21 @@ class GameStruct:
                         ports.add(neighbor)
 
         return list(ports)
+    
+    def get_all_available_connections_of_ports(self) -> list[tuple[str,str]]:
+        """Returns all Nodes that are connected to a port. Sorted By the Port. Like (House, Port)"""
+
+        temp = set()
+
+        for node, _ in self.graph.nodes(data=True):
+            for neighbor in self.graph.neighbors(node):
+                if str(neighbor).startswith("Port"):
+                    temp.add((node, str(neighbor)))
+
+
+        port_index = 1
+        return sorted(list(temp), key = lambda x: x[port_index])
+        
 
     def __str__(self):
         return f"nodes: {len(list(self.graph.nodes))}. number of edges {len(list(self.graph.edges))}"
