@@ -144,9 +144,9 @@ class Tabs:
         print(self.player_ports)
 
         try:
-            self.select_ports.set("")
-
-            self.select_ports['values'] = tuple(self.player_ports)
+            if self.select_ports is not None:
+                self.select_ports.set("")
+                self.select_ports['values'] = tuple(self.player_ports)
         except AttributeError as e:
             print(f"AttributeError on line 147: {e}")
         

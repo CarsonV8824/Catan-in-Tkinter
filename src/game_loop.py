@@ -120,12 +120,14 @@ class GameLoop:
             
             self.place_robber(players, button)
             
-        # Update UI after resources are distributed
-        if update_player_stats_tab:
-            update_player_stats_tab()
+
         self.board.canvas.update()
 
         self.player_index = (self.player_index + 1) % len(players)
+
+        # Update UI after resources are distributed and is now next turn for player's stuff
+        if update_player_stats_tab:
+            update_player_stats_tab()
         
         player_info.config(text=f"{players[self.player_index].name}'s Turn")
 
