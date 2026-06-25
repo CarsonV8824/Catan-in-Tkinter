@@ -468,6 +468,7 @@ class Canvas:
                     print(
                         f"{self.current_player.name} clicked on piece {hit_piece_corner} at {corner}"
                     )
+                    self.current_player.actions.add("bought_settlement")
                 elif not check:
                     print(f"Corner {self.get_corner_num(corner)} is already occupied.")
 
@@ -496,6 +497,7 @@ class Canvas:
                     print(
                         f"{self.current_player.name} clicked on piece {hit_piece_corner} at {corner} for city!"
                     )
+                    self.current_player.actions.add("bought_city")
 
         elif hit_piece_edge:
             if self.road_on:
@@ -528,6 +530,7 @@ class Canvas:
                     print(
                         f"Edge between corners {house1_num} and {house2_num} is already occupied or invalid."
                     )
+                self.current_player.actions.add("bought_road")
 
         else:
             print("No corner hit or edge hit")

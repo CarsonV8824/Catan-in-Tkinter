@@ -20,17 +20,30 @@ class Database:
         edge_list TEXT,
         PlayerData TEXT,
         player_count INTEGER,
-        player_turn INTEGER
+        player_turn INTEGER,
+        dice1 INT,
+        dice2 INT,
+        actions TEXT
         );""")
         self.connection.commit()
 
-    def add_data(self, node_list, edge_list, PlayerData, player_count, player_turn):
+    def add_data(
+        self,
+        node_list,
+        edge_list,
+        PlayerData,
+        player_count,
+        player_turn,
+        action,
+        dice1,
+        dice2,
+    ):
         """Adds game data to the database in a JSON string format."""
 
         self.cursor.execute(
             """
-        INSERT INTO Catan (node_list, edge_list, PlayerData, player_count, player_turn)
-        Values (?, ?, ?, ?, ?)
+        INSERT INTO Catan (node_list, edge_list, PlayerData, player_count, player_turn, actions, dice1, dice2)
+        Values (?, ?, ?, ?, ?,?,?,?)
 
         """,
             (
@@ -39,6 +52,9 @@ class Database:
                 json.dumps(PlayerData),
                 player_count,
                 player_turn,
+                action,
+                dice1,
+                dice2,
             ),
         )
         self.connection.commit()

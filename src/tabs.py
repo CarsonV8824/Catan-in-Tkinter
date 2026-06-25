@@ -44,7 +44,6 @@ class Tabs:
         game_loop: GameLoop,
         players: list,
         game_struct: GameStruct,
-        function: Callable
     ):
 
         dice_tab = ttk.Frame(notebook)
@@ -84,7 +83,6 @@ class Tabs:
                 update_player_stats_tab=lambda: self.update_player_stats(
                     players, game_loop, game_struct
                 ),
-                add_data_for_ml = function
             ),
         )
 
@@ -340,12 +338,14 @@ class Tabs:
             for player in players:
                 if player.name == self.first_trade_player:
                     player.resources["trade_with_player"]+=1
+                    player.actions.add("port_trade_in_count")
                     for resource in first_items:
                         player.remove_resource(resource, 1)
                     for resource in second_items:
                         player.add_resource(resource, 1)
                 elif player.name == self.second_trade_player:
                     player.resources["trade_with_player"]+=1
+                    player.actions.add("port_trade_in_count")
                     for resource in second_items:
                         player.remove_resource(resource, 1)
                     for resource in first_items:
@@ -479,6 +479,7 @@ class Tabs:
                 )
                 port_toplevel.destroy()
                 player.resources["port_trade_in_count"] += 1
+                player.actions.add("port_trade_in_count")
                 self.update_player_stats(players, game_loop, game_struct)
 
             match not_last_port_type:
@@ -830,6 +831,7 @@ class Tabs:
                 )
         
         players[current_player_index].resources["development_cards_bought"] += 1
+        players[current_player_index].actions.add("development_cards_bought")
 
         print(f"Chosen Card: {chosen_card}")
         self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)
@@ -887,7 +889,7 @@ class Tabs:
 
         return rules_tab
 
-    def additional_info_tab(self, notebook: ttk.Notebook, past_data: list[tuple]):
+    def additional_info_tab(self, notebook: ttk.Notebook):
         past_games_tab = ttk.Frame(notebook)
         notebook.add(past_games_tab, text="additional info")
 

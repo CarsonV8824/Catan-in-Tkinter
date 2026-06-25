@@ -32,39 +32,6 @@ def load_data() -> list[Any] | None:
         print(e)
         return None
 
-
-def add_data(
-    game_struct: GameStruct,
-    PlayerData: list[Player],
-    player_count: int,
-    player_turn: int,
-):
-    db_path = os.path.join("database", "Tinkinan.db")
-    if not os.path.exists(db_path):
-        return None
-    try:
-        with Database(db_path) as db:
-            node_list = list(game_struct.graph.nodes(data=True))
-            edge_list = list(game_struct.graph.edges(data=True))
-
-            player_data = []
-            for player in PlayerData:
-                pdata = {
-                    "name": player.name,
-                    "color": player.color,
-                    "resources": player.resources,
-                }
-                player_data.append(pdata)
-
-            db.add_data(node_list, edge_list, player_data, player_count, player_turn)
-    except Exception as e:
-        raise e
-
-
-def rgb(r: int, g: int, b: int):
-    return f"#{r:02x}{g:02x}{b:02x}"
-
-
 def run():
     Database.make_init_table()  # for making .db file
 
@@ -112,7 +79,7 @@ def run():
 
         board.get_player(players[game_loop.player_index])
 
-        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct, lambda:add_data(game_struct, players, player_count, game_loop.player_index))
+        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct)
 
         player_stats_tab = tab.player_stats_tab(tabs, players)
 
@@ -123,16 +90,12 @@ def run():
 
         rules_tab = tab.rules_tab(tabs)
 
-        additional_info_tab = tab.additional_info_tab(tabs, load_data())
+        additional_info_tab = tab.additional_info_tab(tabs)
 
         running = root.mainloop()
 
-        if not running:  # this will run when the window is closed
-            print("Exiting Game")
-
-            add_data(game_struct, players, player_count, game_loop.player_index)
-
-        return
+        if not running:
+            return
 
     else:
 
@@ -160,7 +123,7 @@ def run():
 
         board.get_player(players[first_player_index])  # set first player for placement
 
-        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct, lambda:add_data(game_struct, players, player_count, game_loop.player_index))
+        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct)
 
         player_stats_tab = tab.player_stats_tab(tabs, players)
 
@@ -172,11 +135,9 @@ def run():
 
         rules_tab = tab.rules_tab(tabs)
 
-        additional_info_tab = tab.additional_info_tab(tabs, load_data())
+        additional_info_tab = tab.additional_info_tab(tabs)
 
         running = root.mainloop()
 
-        if not running:  # this will run when the window is closed
-            print("Exiting Game")
-
-            add_data(game_struct, players, player_count, game_loop.player_index)
+        if not running:
+            return

@@ -5,6 +5,41 @@ import random
 from game_struct import GameStruct
 from canvas import Canvas
 from typing import Callable
+import os
+import json
+
+from db import Database
+
+
+def add_data(
+    game_struct: GameStruct,
+    PlayerData: list,
+    player_count: int,
+    player_turn: int,
+    dice1:int,
+    dice2:int,
+    action:str
+):
+    db_path = os.path.join("database", "Tinkinan.db")
+    if not os.path.exists(db_path):
+        return None
+    try:
+        with Database(db_path) as db:
+            node_list = list(game_struct.graph.nodes(data=True))
+            edge_list = list(game_struct.graph.edges(data=True))
+
+            player_data = []
+            for player in PlayerData:
+                pdata = {
+                    "name": player.name,
+                    "color": player.color,
+                    "resources": player.resources,
+                }
+                player_data.append(pdata)
+
+            db.add_data(node_list, edge_list, player_data, player_count, player_turn, action, dice1, dice2)
+    except Exception as e:
+        raise e
 
 
 class GameLoop:
@@ -75,7 +110,6 @@ class GameLoop:
         second_dice_label: ttk.Label = None,
         total_of_dice_label: ttk.Label = None,
         update_player_stats_tab=None,
-        add_data_for_ml:Callable|None=None
     ):
 
         drestory_all = lambda: [
@@ -130,6 +164,7 @@ class GameLoop:
             self.game_struct.distribute_resources(total, players)
         elif total == 7:
             # Check which players need to discard
+            players[self.player_index].actions.add("placed_robber")
             players_to_discard = []
             for player in players:
                 total_resources = sum(
@@ -163,9 +198,11 @@ class GameLoop:
         self.board.get_player(players[self.player_index])
 
         self.board.canvas.update()
-        if add_data_for_ml:
-            add_data_for_ml()
-            print("added data to datavbase")
+        players[self.player_index].actions.add("rolled_dice")
+        actions = list(players[self.player_index].actions)
+        actions = json.dumps(actions)
+        add_data(self.game_struct, players, len(players), self.player_index, first_die, second_die, actions) 
+        print("added data to datavbase")
 
     def show_discard_ui(self, players_to_discard: list, update_player_stats_tab=None):
         """Display UI for players to manually discard half their resources."""
@@ -252,3 +289,4 @@ class GameLoop:
 
             # Wait for this player to discard before moving to next
             self.root.wait_window(discard_window)
+            player.actions.add("discard_due_to_robber")

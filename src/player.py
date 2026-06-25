@@ -29,6 +29,7 @@ class Player:
         self.settlements = []
         self.cities = []
         self.roads = []
+        self.actions = set()
 
     def add_resource(self, resource: str, amount: int):
         if resource in self.resources:
