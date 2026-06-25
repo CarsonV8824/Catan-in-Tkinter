@@ -44,6 +44,7 @@ class Tabs:
         game_loop: GameLoop,
         players: list,
         game_struct: GameStruct,
+        function: Callable
     ):
 
         dice_tab = ttk.Frame(notebook)
@@ -83,6 +84,7 @@ class Tabs:
                 update_player_stats_tab=lambda: self.update_player_stats(
                     players, game_loop, game_struct
                 ),
+                add_data_for_ml = function
             ),
         )
 
@@ -189,7 +191,7 @@ class Tabs:
     def trade_tab(
         self,
         notebook: ttk.Notebook,
-        players: list,
+        players: list[Player],
         game_loop: GameLoop,
         game_struct: GameStruct | None = None,
     ):
@@ -337,11 +339,13 @@ class Tabs:
             # Update player resources
             for player in players:
                 if player.name == self.first_trade_player:
+                    player.resources["trade_with_player"]+=1
                     for resource in first_items:
                         player.remove_resource(resource, 1)
                     for resource in second_items:
                         player.add_resource(resource, 1)
                 elif player.name == self.second_trade_player:
+                    player.resources["trade_with_player"]+=1
                     for resource in second_items:
                         player.remove_resource(resource, 1)
                     for resource in first_items:
@@ -368,6 +372,7 @@ class Tabs:
             self.second_player_items.config(
                 height=len(self.second_player_items.get_children()) or 1
             )
+
 
         trade_confirm_button = ttk.Button(
             player_player_frame,
@@ -473,6 +478,7 @@ class Tabs:
                     resorce_to_trade_in_for_box=wanting_combo,
                 )
                 port_toplevel.destroy()
+                player.resources["port_trade_in_count"] += 1
                 self.update_player_stats(players, game_loop, game_struct)
 
             match not_last_port_type:
@@ -700,7 +706,7 @@ class Tabs:
 
     def choose_development_card(
         self,
-        players,
+        players:list[Player],
         current_player_index: int,
         robber_func: Callable | None = None,
         road_func: Callable | None = None,
@@ -822,6 +828,8 @@ class Tabs:
                 self.update_player_stats(
                     players, game_loop=game_loop, game_struct=game_struct
                 )
+        
+        players[current_player_index].resources["development_cards_bought"] += 1
 
         print(f"Chosen Card: {chosen_card}")
         self.update_player_stats(players, game_loop=game_loop, game_struct=game_struct)

@@ -20,6 +20,9 @@ class Player:
             "gray": 0,
             "victory_points": 2,
             "knight_cards": 0,
+            "development_cards_bought":0,
+            "port_trade_in_count":0,
+            "trade_with_player":0,
             "longest_route": False,
             "largest_army": False,
         }

@@ -112,7 +112,7 @@ def run():
 
         board.get_player(players[game_loop.player_index])
 
-        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct)
+        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct, lambda:add_data(game_struct, players, player_count, game_loop.player_index))
 
         player_stats_tab = tab.player_stats_tab(tabs, players)
 
@@ -160,7 +160,7 @@ def run():
 
         board.get_player(players[first_player_index])  # set first player for placement
 
-        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct)
+        dice_tab = tab.dice_tab(tabs, game_loop, players, game_struct, lambda:add_data(game_struct, players, player_count, game_loop.player_index))
 
         player_stats_tab = tab.player_stats_tab(tabs, players)
 

@@ -4,6 +4,7 @@ import tkinter as tk
 import random
 from game_struct import GameStruct
 from canvas import Canvas
+from typing import Callable
 
 
 class GameLoop:
@@ -74,6 +75,7 @@ class GameLoop:
         second_dice_label: ttk.Label = None,
         total_of_dice_label: ttk.Label = None,
         update_player_stats_tab=None,
+        add_data_for_ml:Callable|None=None
     ):
 
         drestory_all = lambda: [
@@ -161,6 +163,9 @@ class GameLoop:
         self.board.get_player(players[self.player_index])
 
         self.board.canvas.update()
+        if add_data_for_ml:
+            add_data_for_ml()
+            print("added data to datavbase")
 
     def show_discard_ui(self, players_to_discard: list, update_player_stats_tab=None):
         """Display UI for players to manually discard half their resources."""
